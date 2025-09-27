@@ -9,12 +9,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Say hello
-        run: echo "✅ Runner is working fine!"
+      - name: Print runner context
+        run: |
+          echo "Runner labels: ${{ runner.labels }}"
+          echo "Workspace: $GITHUB_WORKSPACE"
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: List files
-        run: ls -la
 
