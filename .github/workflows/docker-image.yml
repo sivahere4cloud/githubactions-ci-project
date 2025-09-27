@@ -1,5 +1,4 @@
 name: CI Pipeline
-
 on:
   push:
     branches: [ "main" ]
@@ -9,24 +8,19 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # Stage 1: Checkout
+      #stage 1:Checkout
       - uses: actions/checkout@v4
       - name: Checkout Repository
         run: echo "Runner is working fine!"
 
-      # Stage 2: SonarQube Scan
+      #Sonarqube quality scan on the files
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v2.0.0
         env: 
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: >
-            -Dsonar.projectKey=github-actions
-            -Dsonar.projectName="GitHub Actions React App"
-            -Dsonar.sources=.
 
-      # Stage 2.1: SonarQube Quality Gate check (non-blocking)
+      #Sonarqube quality gate check 
       - name: SonarQube Quality Gate check
         uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
         timeout-minutes: 5
@@ -34,6 +28,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         continue-on-error: true
+        with:
+          args: >
+            -Dsonar.projectKey=github-actions
+            -Dsonar.projectName="GitHub Actions React App"
+            -Dsonar.sources=.
 
       # Stage 3.1: Setup Node.js
       - name: Set up Node.js
