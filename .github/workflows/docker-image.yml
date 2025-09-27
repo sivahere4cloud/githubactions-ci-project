@@ -4,14 +4,20 @@ on:
     branches: [ "main" ]
   
 jobs:
-  build:
+  # Stage 1: Checkout
+  checkout:
     runs-on: self-hosted
-
     steps:
-      #stage 1:Checkout
       - uses: actions/checkout@v4
       - name: Checkout Repository
         run: echo "Runner is working fine!"
+
+  # Stage 2: SonarQube Scan
+  sonar:
+    runs-on: self-hosted
+    needs: checkout
+    steps:
+      - uses: actions/checkout@v4
 
       #Sonarqube quality scan on the files
       - name: SonarQube Scan
@@ -34,23 +40,40 @@ jobs:
             -Dsonar.projectName="GitHub Actions React App"
             -Dsonar.sources=.
 
-      # Stage 3.1: Setup Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '14'    # React apps typically use Node 16/18/20
+  # Stage 3: React Build
+  build:
+    runs-on: self-hosted
+    needs: sonar
+    steps:
+      - uses: actions/checkout@v4
 
-      # Stage 3.2: Install dependencies
+      # Stage 3.1: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Stage 3.3: Build React app
+      # Stage 3.2: Build React app
       - name: Build project
         run: npm run build
 
-      # Stage 3.4: Upload build as artifact
+      # Stage 3.3: Upload build as artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: react-build
           path: build/
+
+  # Stage 4: Trivy File Scan
+  trivy-files:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy FS Scan
+        run: trivy fs . --exit-code 0 --no-progress --format table > trivy-fs-report.txt
+
+      - name: Upload Trivy FS Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs-report
+          path: trivy-fs-report.txt
