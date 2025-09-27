@@ -77,3 +77,13 @@ jobs:
         with:
           name: trivy-fs-report
           path: trivy-fs-report.txt
+          
+  docker_build:
+    runs-on: self-hosted
+    needs: trivy-files
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dokcer build
+        run: docker build -t sivahere/git-actions-img .
+    
