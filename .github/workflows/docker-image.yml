@@ -1,4 +1,5 @@
 name: CI Pipeline
+
 on:
   push:
     branches: [ "main" ]
@@ -8,27 +9,49 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    #stage 1:Checkout
-    - uses: actions/checkout@v4
-    - name: Checkout Repository
-      run: echo "Runner is working fine!"
+      # Stage 1: Checkout
+      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        run: echo "Runner is working fine!"
 
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v2.0.0
-      env: 
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        
-    - name: SonarQube Quality Gate check
-      uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
-      timeout-minutes: 5
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      continue-on-error: true
-      with:
+      # Stage 2: SonarQube Scan
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v2.0.0
+        env: 
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
           args: >
             -Dsonar.projectKey=github-actions
             -Dsonar.projectName="GitHub Actions React App"
             -Dsonar.sources=.
-      
+
+      # Stage 2.1: SonarQube Quality Gate check (non-blocking)
+      - name: SonarQube Quality Gate check
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        continue-on-error: true
+
+      # Stage 3.1: Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'    # React apps typically use Node 16/18/20
+
+      # Stage 3.2: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Stage 3.3: Build React app
+      - name: Build project
+        run: npm run build
+
+      # Stage 3.4: Upload build as artifact
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-build
+          path: build/
