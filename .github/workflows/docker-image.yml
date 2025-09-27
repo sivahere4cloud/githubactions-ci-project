@@ -38,7 +38,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'    # React apps typically use Node 16/18/20
+          node-version: '14'    # React apps typically use Node 16/18/20
 
       # Stage 3.2: Install dependencies
       - name: Install dependencies
