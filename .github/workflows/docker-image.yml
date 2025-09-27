@@ -86,4 +86,38 @@ jobs:
 
       - name: Dokcer build
         run: docker build -t sivahere/git-actions-img .
+        
+      # Stage 7: Trivy Image Scan
+  trivy-image:
+    runs-on: self-hosted
+    needs: docker_build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy Image Scan
+        run: |
+          trivy image react-app:latest --exit-code 0 --no-progress --format table > trivy-image-report.txt
+
+      - name: Upload Trivy Image Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-report
+          path: trivy-image-report.txt
+
+      # Stage 8: Push to Docker Hub
+  dockerhub-push:
+    runs-on: self-hosted
+    needs: trivy-image
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Tag Docker image
+        run: docker tag react-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/react-app:latest
+
     
