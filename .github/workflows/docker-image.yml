@@ -26,5 +26,9 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       continue-on-error: true
-      
+      with:
+          args: >
+            -Dsonar.projectKey=github-actions
+            -Dsonar.projectName="GitHub Actions React App"
+            -Dsonar.sources=.
       
