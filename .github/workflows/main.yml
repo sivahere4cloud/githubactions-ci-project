@@ -1,4 +1,4 @@
-name: CI Pipeline
+dfname: CI Pipeline
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: my-ubuntu-runner   # since you’re using your Ubuntu t2.medium runner
+    runs-on: self-hosted   
     steps:
       # Stage 1: Checkout Code
       - name: Checkout repository
