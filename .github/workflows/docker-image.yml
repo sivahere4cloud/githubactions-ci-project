@@ -96,7 +96,7 @@ jobs:
 
       - name: Run Trivy Image Scan
         run: |
-          trivy image react-app:latest --exit-code 0 --no-progress --format table > trivy-image-report.txt
+          trivy image sivahere/git-actions-img:latest --exit-code 0 --no-progress --format table > trivy-image-report.txt
 
       - name: Upload Trivy Image Report
         uses: actions/upload-artifact@v4
